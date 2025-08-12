@@ -1,0 +1,19 @@
+[Unit]
+Description=Setup WireGuard interface technine for DN42
+Wants=network-online.target
+After=network-online.target
+Before=bird.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/ip link add dev technine type wireguard
+ExecStartPre=/usr/bin/ip addr add 172.20.183.41/32 peer 172.20.16.141/32 dev technine
+ExecStartPre=/usr/bin/ip addr add fe80::100 peer fe80::1588/64 dev technine
+ExecStartPre=/usr/bin/ip link set technine up
+ExecStart=/usr/bin/wg setconf technine /etc/wireguard/technine.conf
+ExecStopPost=/usr/bin/ip link set technine down
+ExecStopPost=/usr/bin/ip link del dev technine
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,19 @@
+[Unit]
+Description=Setup dummy for DN42
+Wants=network-online.target
+After=network-online.target
+Before=bird.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/ip link add dn42-dummy type dummy
+ExecStartPre=/usr/bin/ip link set dev dn42-dummy up
+ExecStartPre=/usr/bin/ip addr add dev dn42-dummy 172.20.183.41/29
+ExecStartPre=/usr/bin/ip -6 addr add dev dn42-dummy fd92:3823:80fd:d300::2/64
+ExecStart=/usr/bin/ip link set dn42-dummy up
+ExecStopPost=/usr/bin/ip link set dn42-dummy down
+ExecStopPost=/usr/bin/ip link del dev dn42-dummy
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

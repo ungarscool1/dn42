@@ -1,0 +1,19 @@
+[Unit]
+Description=Setup WireGuard interface kioubit for DN42
+Wants=network-online.target
+After=network-online.target
+Before=bird.service
+
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/ip link add dev kioubit type wireguard
+ExecStartPre=/usr/bin/ip addr add 192.168.219.154/32 peer 172.20.53.97/32 dev kioubit
+ExecStartPre=/usr/bin/ip addr add fe80::ade1/64 dev kioubit
+ExecStartPre=/usr/bin/ip link set kioubit up
+ExecStart=/usr/bin/wg setconf kioubit /etc/wireguard/kioubit.conf
+ExecStopPost=/usr/bin/ip link set kioubit down
+ExecStopPost=/usr/bin/ip link del dev kioubit
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
